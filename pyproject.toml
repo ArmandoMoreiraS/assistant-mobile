@@ -2,7 +2,7 @@
 name = "ai-foundation"
 version = "0.1.0"
 description = "LLM and AI Agentic systems development project foundation"
-requires-python = ">=3.11"
+requires-python = ">=3.12"
 dependencies = [
     "langchain>=0.3",
     "langgraph>=0.2",
@@ -13,6 +13,7 @@ dependencies = [
     "fastapi>=0.115",
     "uvicorn[standard]>=0.30",
     "sse-starlette>=2.0",
+    "artemis",
 ]
 
 [project.optional-dependencies]
@@ -39,7 +40,7 @@ packages = ["src/ai_foundation", "src/ai_companion"]
 
 [tool.ruff]
 line-length = 100
-target-version = "py311"
+target-version = "py312"
 
 [tool.ruff.lint]
 select = ["E", "F", "I"]
@@ -47,3 +48,6 @@ select = ["E", "F", "I"]
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 addopts = "-v"
+
+[tool.uv.sources]
+artemis = { git = "https://github.com/google/artemis.git" }

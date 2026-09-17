@@ -15,7 +15,7 @@ def get_llm(
     Parameters
     ----------
     model:
-        Model name. Defaults to 'gemini-3.6-flash' for Gemini.
+        Model name. Defaults to 'gemini-3.5-flash-lite' for Gemini.
     temperature:
         Sampling temperature in [0.0, 2.0] (default: 0.0 for deterministic output).
 
@@ -25,7 +25,7 @@ def get_llm(
         A configured LangChain chat model instance.
     """
     return ChatGoogleGenerativeAI(
-        model=model or "gemini-3.6-flash",
+        model=model or "gemini-3.5-flash-lite",
         temperature=temperature,
         google_api_key=settings.google_api_key or None,
     )

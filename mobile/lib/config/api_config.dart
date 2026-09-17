@@ -3,7 +3,7 @@ class ApiConfig {
   /// URL base del servidor FastAPI.
   /// Para emulador Android usa 10.0.2.2 (alias del localhost del host).
   /// Para dispositivo físico, usa la IP de tu máquina en la red local.
-  static const String baseUrl = 'http://10.0.2.2:8000';
+  static const String baseUrl = 'https://assistant-mobile.onrender.com';
 
   /// ID fijo del único usuario de la app.
   static const String userId = 'mi_persona';

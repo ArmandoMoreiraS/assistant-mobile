@@ -148,6 +148,32 @@ async def get_history(user_id: str):
     history = load_history(user_id)
     return {"history": [t.model_dump() for t in history]}
 
+# ─── Artemis Integration ──────────────────────────────────────────────────
+
+class ArtemisRequest(BaseModel):
+    task: str
+
+@app.post("/api/v1/artemis/run")
+async def run_artemis_task(req: ArtemisRequest):
+    import asyncio
+    from ai_foundation.utils.logging import logger
+    
+    # Artemis toma control del dispositivo conectado por ADB
+    # Esta tarea puede ser pesada, por lo que la simulamos o lanzamos en 2do plano.
+    async def _execute_artemis():
+        logger.info(f"🚀 Iniciando Artemis Agent para: {req.task}")
+        try:
+            # Aquí iría la importación real de google/artemis
+            # import artemis; artemis.agent.run(instruction=req.task)
+            await asyncio.sleep(5)
+            logger.info(f"✅ Artemis finalizó la tarea: {req.task}")
+        except Exception as e:
+            logger.error(f"❌ Error en Artemis: {e}")
+
+    asyncio.create_task(_execute_artemis())
+    return {"status": "started", "task": req.task}
+
+
 
 # ─── End Session ──────────────────────────────────────────────────────
 

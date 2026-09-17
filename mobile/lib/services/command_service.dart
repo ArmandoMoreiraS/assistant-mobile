@@ -1,4 +1,6 @@
+import 'package:http/http.dart' as http;
 import 'package:url_launcher/url_launcher.dart';
+import '../config/api_config.dart';
 
 class CommandService {
   /// Busca comandos en el texto, los ejecuta y devuelve el texto limpio.
@@ -52,6 +54,18 @@ class CommandService {
             final urlString = parts.sublist(1).join(':').trim();
             final url = Uri.parse(urlString);
             await launchUrl(url, mode: LaunchMode.externalApplication);
+          }
+          break;
+        case 'ARTEMIS':
+          if (parts.length > 1) {
+            final task = parts.sublist(1).join(':').trim();
+            // Llama a la API del backend para ejecutar Artemis
+            final uri = Uri.parse('${ApiConfig.baseUrl}/api/v1/artemis/run');
+            final request = http.Request('POST', uri);
+            request.headers['Content-Type'] = 'application/json';
+            request.body = '{"task": "$task"}';
+            // Lo enviamos y no esperamos para no bloquear
+            http.Client().send(request);
           }
           break;
       }
