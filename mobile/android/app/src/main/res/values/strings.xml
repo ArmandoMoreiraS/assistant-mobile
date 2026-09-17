@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="accessibility_service_description">AI Companion necesita este servicio para poder leer el texto en tu pantalla cuando se lo pides, permitiéndole entender tu contexto actual.</string>
+</resources>

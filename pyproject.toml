@@ -1,0 +1,49 @@
+[project]
+name = "ai-foundation"
+version = "0.1.0"
+description = "LLM and AI Agentic systems development project foundation"
+requires-python = ">=3.11"
+dependencies = [
+    "langchain>=0.3",
+    "langgraph>=0.2",
+    "python-dotenv>=1.0",
+    "pydantic>=2.0",
+    "pydantic-settings>=2.0",
+    "langchain-google-genai>=4.4.0",
+    "fastapi>=0.115",
+    "uvicorn[standard]>=0.30",
+    "sse-starlette>=2.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "ruff",
+    "pytest",
+    "pytest-cov",
+    "jupyterlab",
+    "ipykernel",
+    "hypothesis",
+    "httpx",
+]
+
+[project.scripts]
+companion = "ai_companion.cli:main"
+companion-api = "ai_companion.api.main:run_server"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/ai_foundation", "src/ai_companion"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+
+[tool.ruff.lint]
+select = ["E", "F", "I"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-v"
