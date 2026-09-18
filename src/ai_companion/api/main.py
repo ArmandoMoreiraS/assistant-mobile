@@ -164,12 +164,24 @@ async def run_artemis_task(req: ArtemisRequest):
     async def _execute_artemis():
         logger.info(f"🚀 Iniciando Artemis Agent para: {req.task}")
         try:
-            # Aquí iría la importación real de google/artemis
-            # import artemis; artemis.agent.run(instruction=req.task)
-            await asyncio.sleep(5)
-            logger.info(f"✅ Artemis finalizó la tarea: {req.task}")
+            # Ejecutamos el CLI nativo de Artemis configurado en nuestro venv
+            # '--profile flash' es más rápido (3-5s por paso)
+            process = await asyncio.create_subprocess_exec(
+                "artemis", "run", req.task, "--profile", "flash",
+                stdout=asyncio.subprocess.PIPE,
+                stderr=asyncio.subprocess.PIPE,
+            )
+            stdout, stderr = await process.communicate()
+            
+            if process.returncode == 0:
+                logger.info(f"✅ Artemis finalizó la tarea: {req.task}")
+                # logger.debug(f"Artemis stdout: {stdout.decode('utf-8', 'ignore')}")
+            else:
+                logger.error(f"❌ Artemis falló con código {process.returncode}")
+                logger.error(f"Stderr: {stderr.decode('utf-8', 'ignore')}")
+                
         except Exception as e:
-            logger.error(f"❌ Error en Artemis: {e}")
+            logger.error(f"❌ Error lanzando Artemis: {e}")
 
     asyncio.create_task(_execute_artemis())
     return {"status": "started", "task": req.task}
