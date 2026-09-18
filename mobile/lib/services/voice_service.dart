@@ -21,6 +21,8 @@ class VoiceService {
     // (Aquí podríamos filtrar para elegir la mejor voz local, 
     // pero por defecto usará la mejor disponible en español)
     
+    await _tts.awaitSpeakCompletion(true);
+    
     _tts.setCompletionHandler(() {
       if (_onTtsCompleteCallback != null) {
         _onTtsCompleteCallback!();
@@ -77,22 +79,43 @@ class VoiceService {
 
   bool get isListening => _stt.isListening;
 
-  /// Reproduce texto en voz alta.
+  final List<String> _ttsQueue = [];
+  bool _isSpeaking = false;
+
+  /// Reproduce texto en voz alta usando un sistema de cola
+  /// para evitar que una nueva oración corte a la anterior.
   Future<void> speak(String text) async {
     if (!_isTtsInitialized) {
       await init();
     }
     if (text.isNotEmpty) {
-      await _tts.speak(text);
+      _ttsQueue.add(text);
+      _processQueue();
     }
   }
 
-  /// Detiene la reproducción de voz.
+  Future<void> _processQueue() async {
+    if (_isSpeaking || _ttsQueue.isEmpty) return;
+    _isSpeaking = true;
+    
+    while (_ttsQueue.isNotEmpty) {
+      String nextText = _ttsQueue.removeAt(0);
+      await _tts.speak(nextText);
+      // Gracias a awaitSpeakCompletion(true), esto espera a que termine de hablar
+    }
+    
+    _isSpeaking = false;
+  }
+
+  /// Detiene la reproducción de voz y vacía la cola.
   Future<void> stopSpeaking() async {
+    _ttsQueue.clear();
+    _isSpeaking = false;
     await _tts.stop();
   }
 
   void dispose() {
+    _ttsQueue.clear();
     _tts.stop();
     _stt.stop();
   }
