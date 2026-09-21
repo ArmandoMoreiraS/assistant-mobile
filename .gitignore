@@ -31,3 +31,8 @@ data/**/*.json
 # Build / dist
 dist/
 *.egg-info/
+
+# Keystore files
+*.jks
+*keystore*
+my-key-base64.txt
