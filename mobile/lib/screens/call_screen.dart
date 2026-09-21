@@ -101,21 +101,19 @@ class _CallScreenState extends ConsumerState<CallScreen>
     final isThinking = chatState.isLoading;
     final isListening = chatState.isListening;
 
-    Color stateColor;
-    String stateText;
-    
+    // TEMA 21 DE SEPTIEMBRE (Flores Amarillas)
     if (isThinking) {
-      stateColor = AppTheme.secondaryColor;
-      stateText = "Procesando...";
+      stateColor = Colors.amber.shade300;
+      stateText = "Pensando en flores... 🌼";
     } else if (_isAgentSpeaking) {
-      stateColor = AppTheme.primaryColor;
-      stateText = "Hablando...";
+      stateColor = Colors.yellowAccent;
+      stateText = "Hablando... 🌻";
     } else if (isListening) {
-      stateColor = Colors.greenAccent;
-      stateText = "Te escucho...";
+      stateColor = Colors.amber;
+      stateText = "Te escucho... 🌻";
     } else {
-      stateColor = AppTheme.textSecondary;
-      stateText = "Esperando...";
+      stateColor = Colors.amber.shade200;
+      stateText = "Esperando... 🌼";
     }
 
     return Scaffold(
@@ -155,8 +153,8 @@ class _CallScreenState extends ConsumerState<CallScreen>
                         child: Center(
                           child: Icon(
                             isThinking 
-                              ? Icons.auto_awesome 
-                              : (isListening ? Icons.mic : Icons.graphic_eq),
+                              ? Icons.filter_vintage // Flor vintage
+                              : (isListening ? Icons.mic : Icons.local_florist), // Flor
                             size: 64,
                             color: stateColor,
                           ),
