@@ -31,8 +31,18 @@ jobs:
         working-directory: mobile
         run: flutter pub get
 
+      - name: 🔐 Decodificar Keystore
+        run: |
+          echo "${{ secrets.KEYSTORE_BASE64 }}" | base64 --decode > android/app/upload-keystore.jks
+        working-directory: mobile
+
       - name: 🔨 Compilar APK
         working-directory: mobile
+        env:
+          KEYSTORE_PATH: "upload-keystore.jks"
+          STORE_PASSWORD: ${{ secrets.STORE_PASSWORD }}
+          KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
+          KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
         run: flutter build apk --release
 
       - name: 🚀 Subir APK generado
