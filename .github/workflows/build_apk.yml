@@ -1,0 +1,43 @@
+name: Build Flutter APK
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'mobile/**' # Solo ejecutar si hay cambios en la app móvil
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 📦 Clonar repositorio
+        uses: actions/checkout@v4
+
+      - name: ⚙️ Configurar Java (Requerido por Android)
+        uses: actions/setup-java@v3
+        with:
+          distribution: 'zulu'
+          java-version: '17'
+
+      - name: 🐦 Configurar Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: 'stable'
+          cache: true
+
+      - name: 📥 Instalar dependencias
+        working-directory: mobile
+        run: flutter pub get
+
+      - name: 🔨 Compilar APK
+        working-directory: mobile
+        run: flutter build apk --release
+
+      - name: 🚀 Subir APK generado
+        uses: actions/upload-artifact@v4
+        with:
+          name: AI-Companion-App
+          path: mobile/build/app/outputs/flutter-apk/app-release.apk
+          retention-days: 7
