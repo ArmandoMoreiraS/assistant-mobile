@@ -36,3 +36,6 @@ dist/
 *.jks
 *keystore*
 my-key-base64.txt
+
+# llave firestore
+ai-companion-ccd3e-firebase-adminsdk-fbsvc-3641fb26d1.json
