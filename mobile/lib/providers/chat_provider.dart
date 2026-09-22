@@ -115,31 +115,35 @@ class ChatNotifier extends Notifier<ChatState> {
 
       await for (final token
           in _chatService.streamMessage(_userId, enrichedMessage)) {
-        fullResponse += token;
-        currentSentence += token;
+        
+        // Simular efecto de máquina de escribir letra por letra
+        for (int i = 0; i < token.length; i++) {
+          fullResponse += token[i];
+          currentSentence += token[i];
+
+          // Actualizamos la UI en tiempo real
+          final displayResponse = fullResponse.replaceAll(RegExp(r'\[CMD:.*?\]?'), '').trim();
+          final msgs = List<ChatMessage>.from(state.messages);
+          msgs[msgs.length - 1] = companionMessage.copyWith(
+            content: displayResponse,
+            isStreaming: true,
+          );
+          state = state.copyWith(messages: msgs);
+
+          // Pequeña pausa para el efecto "solito poco a poco"
+          await Future.delayed(const Duration(milliseconds: 15));
+        }
 
         // Hablar porciones de oraciones a medida que llegan
         final match = RegExp(r'([.!?\n]+)(\s|$)').firstMatch(currentSentence);
         if (match != null) {
           String sentence = currentSentence.substring(0, match.end).trim();
-          // Limpiar comandos para que no los lea el TTS
           sentence = sentence.replaceAll(RegExp(r'\[CMD:.*?\]?'), '').trim();
           if (sentence.isNotEmpty) {
             _voiceService.speak(sentence);
           }
           currentSentence = currentSentence.substring(match.end);
         }
-
-        // Limpiar para la UI en tiempo real
-        final displayResponse = fullResponse.replaceAll(RegExp(r'\[CMD:.*?\]?'), '').trim();
-
-        // Actualizar el último mensaje con el contenido acumulado
-        final msgs = List<ChatMessage>.from(state.messages);
-        msgs[msgs.length - 1] = companionMessage.copyWith(
-          content: displayResponse,
-          isStreaming: true,
-        );
-        state = state.copyWith(messages: msgs);
       }
 
       // Hablar cualquier remanente al final
