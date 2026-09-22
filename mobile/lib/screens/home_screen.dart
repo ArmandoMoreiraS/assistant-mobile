@@ -4,6 +4,7 @@ import 'package:google_fonts/google_fonts.dart';
 
 import '../config/api_config.dart';
 import '../config/theme.dart';
+import '../services/github_updater.dart';
 import 'chat_screen.dart';
 
 class HomeScreen extends ConsumerStatefulWidget {
@@ -32,6 +33,11 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
       end: Offset.zero,
     ).animate(CurvedAnimation(parent: _animController, curve: Curves.easeOut));
     _animController.forward();
+    
+    // Revisar si hay actualizaciones automáticamente al abrir la app
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      GithubUpdater.checkForUpdates(context);
+    });
   }
 
   @override
