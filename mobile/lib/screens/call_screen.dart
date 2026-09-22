@@ -101,6 +101,9 @@ class _CallScreenState extends ConsumerState<CallScreen>
     final isThinking = chatState.isLoading;
     final isListening = chatState.isListening;
 
+    Color stateColor;
+    String stateText;
+
     // TEMA 21 DE SEPTIEMBRE (Flores Amarillas)
     if (isThinking) {
       stateColor = Colors.amber.shade300;
