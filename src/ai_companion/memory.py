@@ -1,50 +1,68 @@
 import json
+import os
+import base64
 from pathlib import Path
+import firebase_admin
+from firebase_admin import credentials, firestore
 
 from .models import Turn, UserProfile
 
-DEFAULT_PROFILES_DIR = Path("data/profiles")
+# Initialize Firebase
+_db = None
+
+def get_db():
+    global _db
+    if _db is not None:
+        return _db
+    
+    if not firebase_admin._apps:
+        b64_key = os.environ.get("FIREBASE_SERVICE_ACCOUNT_BASE64")
+        if b64_key:
+            import tempfile
+            # Decode and create a temp file for credentials
+            key_json = base64.b64decode(b64_key).decode("utf-8")
+            with tempfile.NamedTemporaryFile(mode="w", delete=False, suffix=".json") as f:
+                f.write(key_json)
+                temp_path = f.name
+            
+            cred = credentials.Certificate(temp_path)
+            firebase_admin.initialize_app(cred)
+            os.remove(temp_path) # Clean up
+        else:
+            # Fallback to default auth if on GCP, though local requires the env var
+            firebase_admin.initialize_app()
+            
+    _db = firestore.client()
+    return _db
 
 
-def get_profile_path(user_id: str, profiles_dir: Path = DEFAULT_PROFILES_DIR) -> Path:
-    return profiles_dir / f"{user_id}.json"
-
-
-def load_profile(user_id: str, profiles_dir: Path = DEFAULT_PROFILES_DIR) -> UserProfile:
-    path = get_profile_path(user_id, profiles_dir)
-    if path.exists():
-        with open(path, "r", encoding="utf-8") as f:
-            data = json.load(f)
-            return UserProfile(**data)
+def load_profile(user_id: str) -> UserProfile:
+    db = get_db()
+    doc_ref = db.collection("profiles").document(user_id)
+    doc = doc_ref.get()
+    if doc.exists:
+        return UserProfile(**doc.to_dict())
     return UserProfile()
 
 
-def save_profile(
-    user_id: str, profile: UserProfile, profiles_dir: Path = DEFAULT_PROFILES_DIR
-) -> None:
-    profiles_dir.mkdir(parents=True, exist_ok=True)
-    path = get_profile_path(user_id, profiles_dir)
-    with open(path, "w", encoding="utf-8") as f:
-        f.write(profile.model_dump_json(indent=2))
+def save_profile(user_id: str, profile: UserProfile) -> None:
+    db = get_db()
+    db.collection("profiles").document(user_id).set(profile.model_dump())
 
 
-def get_history_path(user_id: str, profiles_dir: Path = DEFAULT_PROFILES_DIR) -> Path:
-    return profiles_dir / f"{user_id}_history.json"
-
-
-def load_history(user_id: str, profiles_dir: Path = DEFAULT_PROFILES_DIR) -> list[Turn]:
-    path = get_history_path(user_id, profiles_dir)
-    if path.exists():
-        with open(path, "r", encoding="utf-8") as f:
-            data = json.load(f)
-            return [Turn(**t) for t in data]
+def load_history(user_id: str) -> list[Turn]:
+    db = get_db()
+    doc_ref = db.collection("histories").document(user_id)
+    doc = doc_ref.get()
+    if doc.exists:
+        data = doc.to_dict().get("turns", [])
+        return [Turn(**t) for t in data]
     return []
 
 
-def save_history(
-    user_id: str, history: list[Turn], profiles_dir: Path = DEFAULT_PROFILES_DIR
-) -> None:
-    profiles_dir.mkdir(parents=True, exist_ok=True)
-    path = get_history_path(user_id, profiles_dir)
-    with open(path, "w", encoding="utf-8") as f:
-        json.dump([t.model_dump() for t in history], f, indent=2, ensure_ascii=False)
+def save_history(user_id: str, history: list[Turn]) -> None:
+    db = get_db()
+    db.collection("histories").document(user_id).set({
+        "turns": [t.model_dump() for t in history]
+    })
+
