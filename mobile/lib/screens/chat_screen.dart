@@ -57,21 +57,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
     }
   }
 
-  Future<void> _endSession() async {
-    await ref.read(chatProvider.notifier).endSession();
-    if (mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(
-            'Sesión guardada. ¡Hasta pronto!',
-            style: GoogleFonts.inter(),
-          ),
-          backgroundColor: AppTheme.primaryColor,
-        ),
-      );
-      Navigator.of(context).pop();
-    }
-  }
+
 
   @override
   Widget build(BuildContext context) {
@@ -106,11 +92,6 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
                 ref.read(chatProvider.notifier).stopSpeaking();
               },
             ),
-          IconButton(
-            icon: const Icon(Icons.save_outlined),
-            tooltip: 'Guardar y salir',
-            onPressed: _endSession,
-          ),
         ],
       ),
       body: Column(
