@@ -66,9 +66,15 @@ class GithubUpdater {
             onPressed: () async {
               Navigator.pop(context);
               final Uri uri = Uri.parse(url);
-              if (await canLaunchUrl(uri)) {
+              try {
                 // Al lanzarlo, Android descargará el APK y preguntará para instalarlo
                 await launchUrl(uri, mode: LaunchMode.externalApplication);
+              } catch (e) {
+                if (context.mounted) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('No se pudo abrir el enlace de descarga.')),
+                  );
+                }
               }
             },
             child: const Text('Actualizar'),
